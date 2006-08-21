@@ -16,7 +16,7 @@ master			https://source.sakaiproject.org/svn/master/trunk
 reference		https://source.sakaiproject.org/svn/reference/trunk
 login			https://source.sakaiproject.org/svn/login/trunk
 access			https://source.sakaiproject.org/svn/access/trunk
-content			https://source.sakaiproject.org/svn/content/trunk
+content			https://source.sakaiproject.org/svn/content/branches/content-rights
 metaobj			https://source.sakaiproject.org/svn/metaobj/trunk
 presence		https://source.sakaiproject.org/svn/presence/trunk
 calendar		https://source.sakaiproject.org/svn/calendar/trunk
@@ -54,3 +54,5 @@ samples			https://source.sakaiproject.org/svn/samples/trunk
 msgcntr			https://source.sakaiproject.org/svn/msgcntr/trunk
 postem			https://source.sakaiproject.org/svn/postem/trunk
 cluster			https://source.sakaiproject.org/svn/cluster/trunk
+rights			https://source.sakaiproject.org/svn/rights/trunk
+ocw			https://source.sakaiproject.org/contrib/ocw/trunk
