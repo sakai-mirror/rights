@@ -23,17 +23,11 @@ package org.sakaiproject.rights.impl;
 
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
-import java.util.Vector;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.rights.api.Copyright;
@@ -43,7 +37,6 @@ import org.sakaiproject.rights.api.CreativeCommonsLicense;
 import org.sakaiproject.rights.api.RightsAssignment;
 import org.sakaiproject.rights.api.SiteRightsPolicy;
 import org.sakaiproject.rights.api.UserRightsPolicy;
-import org.sakaiproject.rights.util.RightsException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -51,7 +44,7 @@ import org.w3c.dom.Element;
 
 public abstract class BaseRightsService implements RightsService 
 {
-	public class BasicCopyright implements Copyright 
+	public static class BasicCopyright implements Copyright 
 	{
 
 		protected String m_id;
@@ -101,7 +94,7 @@ public abstract class BaseRightsService implements RightsService
 			m_year = year;
 		}
 
-		public Element toXml(Document doc, Stack stack) 
+		public Element toXml(Document doc, Stack<Object> stack) 
 		{
 			// TODO Auto-generated method stub
 			return null;
@@ -109,260 +102,14 @@ public abstract class BaseRightsService implements RightsService
 
 	}	// class BasicCopyright
 
-	public class BasicCreativeCommonsLicense implements CreativeCommonsLicense
-	{
-		protected String m_id;
-		protected Set m_permissions = new TreeSet();
-		protected Set m_prohibitions = new TreeSet();
-		protected Set m_requirements = new TreeSet();
-
-		public void addPermission(Permission permission) 
-		{
-			if(m_permissions == null)
-			{
-				m_permissions = new TreeSet();
-			}
-			m_permissions.add(permission);
-		}
-
-		public void addPermission(String permission)  throws RightsException
-		{
-			Permission p = Permission.fromString(permission);
-			if(p == null)
-			{
-				throw new RightsException();
-			}
-			addPermission(p);
-		}
-
-		public void addProhibition(Prohibition prohibition) 
-		{
-			if(m_prohibitions == null)
-			{
-				m_prohibitions = new TreeSet();
-			}
-			m_prohibitions.add(prohibition);
-		}
-
-		public void addProhibition(String prohibition) throws RightsException
-		{
-			Prohibition p = Prohibition.fromString(prohibition);
-			if(p == null)
-			{
-				throw new RightsException();
-			}
-			addProhibition(p);
-		}
-
-		public void addRequirement(Requirement requirement) 
-		{
-			if(m_requirements == null)
-			{
-				m_requirements = new TreeSet();
-			}
-			m_requirements.add(requirement);
-		}
-
-		public void addRequirement(String requirement) throws RightsException 
-		{
-			Requirement r = Requirement.fromString(requirement);
-			if(r == null)
-			{
-				throw new RightsException();
-			}
-			addRequirement(r);
-		}
-
-		public String getIdentifier() 
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public Collection getPermissions() 
-		{
-			return m_permissions;
-		}
-
-		public Collection getProhibitions() 
-		{
-			return m_prohibitions;
-		}
-
-		public Collection getRequirements() 
-		{
-			return m_requirements;
-		}
-
-		public String getUri() 
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public boolean hasPermissions() 
-		{
-			return m_permissions != null && ! m_permissions.isEmpty();
-		}
-
-		public boolean hasProhibitions() 
-		{
-			return m_prohibitions != null && ! m_prohibitions.isEmpty();
-		}
-
-		public boolean hasRequirements() 
-		{
-			return m_requirements != null && ! m_requirements.isEmpty();
-		}
-
-		public void removePermission(String permission) 
-		{
-			Permission p = Permission.fromString(permission);
-			if(p != null)
-			{
-				this.m_permissions.remove(p);
-			}
-		}
-
-		public void removeProhibitions(Collection prohibitions) 
-		{
-			if(prohibitions != null)
-			{
-				Iterator it = prohibitions.iterator();
-				while(it.hasNext())
-				{
-					Prohibition p = null;
-					Object obj = it.next();
-					if(obj instanceof Prohibition)
-					{
-						p = (Prohibition) obj;
-					}
-					else if(obj instanceof String)
-					{
-						p = Prohibition.fromString((String) obj);
-					}
-					if(p != null)
-					{
-						this.m_prohibitions.remove(p);
-					}
-				}
-			}
-		}
-
-		public void removeRequirements(Collection requirements) 
-		{
-			if(this.m_requirements == null)
-			{
-				this.m_requirements = new TreeSet();
-			}
-			this.m_requirements.clear();
-			
-			if(requirements != null)
-			{
-				Iterator it = requirements.iterator();
-				while(it.hasNext())
-				{
-					Requirement r = null;
-					Object obj = it.next();
-					if(obj instanceof Requirement)
-					{
-						r = (Requirement) obj;
-					}
-					else if(obj instanceof String)
-					{
-						r = Requirement.fromString((String) obj);
-					}
-					if(r != null)
-					{
-						this.m_requirements.remove(r);
-					}
-				}
-			}
-		}
-		
-		public void setPermissions(Collection permissions) 
-		{
-			if(this.m_permissions == null)
-			{
-				this.m_permissions = new TreeSet();
-			}
-			this.m_permissions.clear();
-			
-			if(permissions != null)
-			{
-				Iterator it = permissions.iterator();
-				while(it.hasNext())
-				{
-					Permission p = null;
-					Object obj = it.next();
-					if(obj instanceof Permission)
-					{
-						p = (Permission) obj;
-					}
-					else if(obj instanceof String)
-					{
-						p = Permission.fromString((String) obj);
-					}
-					if(p != null)
-					{
-						this.m_permissions.add(p);
-					}
-				}
-			}
-		}
-
-		public void setProhibitions(Collection prohibitions) 
-		{
-			if(this.m_prohibitions == null)
-			{
-				this.m_prohibitions = new TreeSet();
-			}
-			this.m_prohibitions.clear();
-			
-			if(prohibitions != null)
-			{
-				Iterator it = prohibitions.iterator();
-				while(it.hasNext())
-				{
-					Prohibition p = null;
-					Object obj = it.next();
-					if(obj instanceof Prohibition)
-					{
-						p = (Prohibition) obj;
-					}
-					else if(obj instanceof String)
-					{
-						p = Prohibition.fromString((String) obj);
-					}
-					if(p != null)
-					{
-						this.m_prohibitions.add(p);
-					}
-				}
-			}
-		}
-
-		public void setRequirements(Collection requirements) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public Element toXml(Document doc, Stack stack) 
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-	}	// class BasicCreativeCommonsLicense
 		
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BasicRightsAssignment implements RightsAssignment
+	public static class BasicRightsAssignment implements RightsAssignment
 	{
-		protected Map m_licenses = new Hashtable();
+		protected Map<String, CreativeCommonsLicense> m_licenses = new Hashtable<String, CreativeCommonsLicense>();
 		protected Copyright m_copyright;
 		protected String m_entityRef = null;
 		protected String m_id;
@@ -379,7 +126,7 @@ public abstract class BaseRightsService implements RightsService
 		{
 			if(m_licenses == null)
 			{
-				m_licenses = new Hashtable();
+				m_licenses = new Hashtable<String, CreativeCommonsLicense>();
 			}
 			m_licenses.put(license.getIdentifier(), license);
 		}
@@ -399,7 +146,7 @@ public abstract class BaseRightsService implements RightsService
 			return m_entityRef;
 		}
 
-		public Collection getLicenses() 
+		public Collection<CreativeCommonsLicense> getLicenses() 
 		{
 			return m_licenses.values();
 		}
@@ -429,12 +176,12 @@ public abstract class BaseRightsService implements RightsService
 			m_copyright = copyright;
 		}
 
-		public void setLicenses(Collection licenses) 
+		public void setLicenses(Collection<CreativeCommonsLicense> licenses) 
 		{
 			
 		}
 
-		public Element toXml(Document doc, Stack stack) 
+		public Element toXml(Document doc, Stack<Object> stack) 
 		{
 			// TODO Auto-generated method stub
 			return null;
