@@ -16,6 +16,12 @@
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/rights/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/rights/trunk</url>
   </scm>
+
+  <properties>
+    <rsfutil.version>0.7.4</rsfutil.version>
+    <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+  </properties>
+
   <modules>
     <module>rights-api/api</module>
     <module>rights-impl/impl</module>

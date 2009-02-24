@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- list the backing beans here 
+	<bean id="itemsBean"
+			class="org.sakaiproject.right.tool.ItemsBean"
+			init-method="init">
+		<property name="logic"
+			ref="org.sakaiproject.right.logic.RightLogic" />
+		<property name="externalLogic" 
+			ref="org.sakaiproject.right.logic.ExternalLogic" />
+		<property name="messages" ref="targettedMessageList"/>
+	</bean>
+	-->
+	
+	<!-- rich text evolver bean def -->
+	<bean id="richTextEvolver"
+			class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
+		<property name="targetBeanName" value="sakaiFCKTextEvolver" />
+	</bean>
+
+	<!-- list the producer beans here -->
+	<bean class="org.sakaiproject.rights.tool.producers.LicenseDialogProducer">
+		<property name="creativeCommonsLicenseManager"
+			ref="org.sakaiproject.rights.api.CreativeCommonsLicenseManager" />
+    </bean>
+
+</beans>

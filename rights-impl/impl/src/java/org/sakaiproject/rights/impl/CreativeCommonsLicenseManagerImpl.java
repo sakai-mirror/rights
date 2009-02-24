@@ -21,36 +21,54 @@
 
 package org.sakaiproject.rights.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.rights.api.CreativeCommonsJurisdiction;
 import org.sakaiproject.rights.api.CreativeCommonsLicense;
 import org.sakaiproject.rights.api.CreativeCommonsLicenseManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -81,6 +99,8 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 
 	protected Map<String,Map<String,Set<String>>> indexes = new HashMap<String,Map<String,Set<String>>>();
 	
+	Map<String, CreativeCommonsJurisdiction> jurisdictions = new HashMap<String, CreativeCommonsJurisdiction>();
+	
 	protected List<String> versionList = new ArrayList<String>();
 	public void setVersionList(List versions)
 	{
@@ -97,9 +117,14 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 		this.rootFolderReference = rootFolderReference;
 	}
 	
-	protected String relativeFolderPath = "creativecommons/";
-	public void setRelativeFolderPath(String relativeFolderPath) {
-		this.relativeFolderPath = relativeFolderPath;
+	protected String licensesFolderPath = "creativecommons/licenses/";
+	public void setLicensesFolderPath(String licensesFolderPath) {
+		this.licensesFolderPath = licensesFolderPath;
+	}
+	
+	protected String juridictionsFolderPath = "creativecommons/jurisdictions/";
+	public void setJuridictionsFolderPath(String juridictionsFolderPath) {
+		this.juridictionsFolderPath = juridictionsFolderPath;
 	}
 	
 	protected ContentHostingService contentService;
@@ -144,14 +169,27 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 				{
 					// filter to find latest version
 					Map<String, Set<String>> versionMap = this.indexes.get(ATTR_VERSION);
-					for(String v : this.getVersionList())
+					if(versionMap == null)
 					{
-						Set<String> vSet = new HashSet<String>(versionMap.get(v));
-						vSet.retainAll(included);
-						if(vSet.size() > 0)
+						logger.warn(ATTR_VERSION + " versionMap is null", new Exception());
+					}
+					else
+					{
+						for(String v : this.getVersionList())
 						{
-							included.retainAll(vSet);
-							break;
+							Set<String> items = versionMap.get(v);
+							if(items == null)
+							{
+								continue;
+							}
+							
+							Set<String> vSet = new HashSet<String>(items);
+							vSet.retainAll(included);
+							if(vSet.size() > 0)
+							{
+								included.retainAll(vSet);
+								break;
+							}
 						}
 					}
 				}
@@ -241,13 +279,46 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 		logger.info(this + ".init()");
 		this.eventTrackingService.addObserver(this);
 		
-		String folderRef = rootFolderReference + relativeFolderPath;
+		Reference licenseFolderRef = this.entityManager.newReference(rootFolderReference + licensesFolderPath);
+		String licenseFolderId = licenseFolderRef.getId();
+		verifyFolderExists(licenseFolderId);
 		
-		Reference reference = this.entityManager.newReference(folderRef);
-		String folderId = reference.getId();
-		logger.info(this + ".init() id == " + reference.getId());
+		Reference jurisdictionFolderRef = this.entityManager.newReference(rootFolderReference + juridictionsFolderPath);
+		String jurisdictionFolderId = jurisdictionFolderRef.getId();
+		verifyFolderExists(jurisdictionFolderId);
+		
+		
+		
+		initializeFiles(licenseFolderId, jurisdictionFolderId);
+		
+		// check whether there are files in the folder.  If so, read them and add licenses 
+		readAllLicenses(licenseFolderId);
+		
+		readAllLicenses(jurisdictionFolderId);
+		
+		
+		// watch the folder for newly added items 
+		//    when new items are added or existing items are changed, read them and add licenses
+		//    when new items, start watching them
+		// check whether there are license files in the pack. If so add them to the root folder.
+		
+		// need to get a reference obj using the folderRef and get the id from the reference obj
+
+		if(logger.isDebugEnabled())
+		{
+			for(String uri : this.licenses.keySet())
+			{
+				CreativeCommonsLicense license = this.licenses.get(uri);
 				
-		// check whether folder exists. If not, add it.
+				logger.debug(license.toJSON());
+			}
+		}
+	}
+
+	/**
+	 * @param folderId
+	 */
+	protected void verifyFolderExists(String folderId) {
 		try 
 		{
 			this.contentService.checkCollection(folderId);
@@ -256,7 +327,8 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 		{
 			try 
 			{
-				this.contentService.addCollection(folderId);
+				ContentCollectionEdit edit = this.contentService.addCollection(folderId);
+				this.contentService.commitCollection(edit);
 			} 
 			catch (IdUsedException e1) 
 			{
@@ -289,30 +361,177 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		// check whether there are files in the folder.  If so, read them and add licenses 
-		readAllLicenses(folderId);
-		
-		
-		// watch the folder for newly added items 
-		//    when new items are added or existing items are changed, read them and add licenses
-		//    when new items, start watching them
-		// check whether there are license files in the pack. If so add them to the root folder.
-		
-		// need to get a reference obj using the folderRef and get the id from the reference obj
-
-		for(String uri : this.licenses.keySet())
-		{
-			CreativeCommonsLicense license = this.licenses.get(uri);
-			
-			logger.info(license.toJSON());
-		}
 	}
 
+	protected void initializeFiles(String licenseFolderId, String jurisdictionFolderId) 
+	{
+		try 
+		{
+			URI url = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+			
+			String licensesDirectoryName = "rdf/licenses/";
+			String jurisdictionsDirectoryName = "rdf/jurisdictions/";
+			
+			logger.debug("===> " + url.toString());
+			JarFile jarFile = new JarFile(new File(url));
+			Enumeration<JarEntry> entries = jarFile.entries();
+			JarEntry entry;
+			while(entries.hasMoreElements())
+			{
+				entry = entries.nextElement();
+				String jarFolderPath = entry.getName();
+				if(jarFolderPath == null || entry.isDirectory())
+				{
+					continue;
+				}
+				
+				if(jarFolderPath.startsWith(licensesDirectoryName))
+				{
+					logger.info("--> " + entry.getName());
+					
+					InputStream in = jarFile.getInputStream(entry);
+
+					String relativeFolderPath = jarFolderPath.substring(licensesDirectoryName.length());
+					
+					this.copyFromJarToResources(licenseFolderId, relativeFolderPath, in);
+				}
+				else if(jarFolderPath.startsWith(jurisdictionsDirectoryName))
+				{
+					logger.info("--> " + entry.getName());
+					
+					InputStream in = jarFile.getInputStream(entry);
+
+					String relativeFolderPath = jarFolderPath.substring(jurisdictionsDirectoryName.length());
+					
+					this.copyFromJarToResources(jurisdictionFolderId, relativeFolderPath, in);					
+				}
+			}
+		} 
+		catch (IOException e) 
+		{
+			logger.warn("============>  Exception reading files from jar ");
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	protected void copyFromJarToResources(String resourcesRootFolderPath, String relativeResourcesPath, InputStream in)
+	{
+		String[] parts = relativeResourcesPath.split("/");
+		String relativePath = "";
+		for(String part : parts)
+		{
+			relativePath += part;
+			if(relativePath.equals(relativeResourcesPath))
+			{
+				try 
+				{
+					this.contentService.checkResource(resourcesRootFolderPath + relativePath);
+				} 
+				catch (IdUnusedException e) 
+				{
+					// need to add the resource
+					try 
+					{
+						ContentResourceEdit edit = this.contentService.addResource(resourcesRootFolderPath + relativePath);
+						
+						edit.setContent(in);
+						edit.setContentType("text/xml");
+						edit.setResourceType(ResourceType.TYPE_UPLOAD);
+						ResourcePropertiesEdit props = edit.getPropertiesEdit();
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, part);
+						
+						this.contentService.commitResource(edit);
+					} 
+					catch (PermissionException e1) 
+					{
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} 
+					catch (IdUsedException e1) 
+					{
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IdInvalidException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (InconsistentException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (ServerOverloadException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (OverQuotaException e1) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					
+				} 
+				catch (TypeException e) 
+				{
+					logger.debug("TypeException checking on resource: " + relativePath);
+				} 
+				catch (PermissionException e) 
+				{
+					logger.debug("PermissionException checking on resource: " + relativePath);
+				} 
+			}
+			else
+			{
+				relativePath += "/";
+				try 
+				{
+						this.contentService.checkCollection(resourcesRootFolderPath + relativePath);
+				} 
+				catch (IdUnusedException e) 
+				{
+					// need to add collection
+					try
+					{
+						ContentCollectionEdit edit = this.contentService.addCollection(resourcesRootFolderPath + relativePath);
+						edit.setResourceType(ResourceType.TYPE_FOLDER);
+						ResourcePropertiesEdit props = edit.getPropertiesEdit();
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, part);
+						
+						this.contentService.commitCollection(edit);
+					}
+					catch (PermissionException e1) 
+					{
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IdUsedException e1) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IdInvalidException e1) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InconsistentException e1) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+
+				} 
+				catch (TypeException e) 
+				{
+					logger.debug("TypeException checking on collection: " + relativePath);
+				} 
+				catch (PermissionException e) 
+				{
+					logger.debug("PermissionException checking on collection: " + relativePath);
+				} 
+			}
+		}
+
+	}
+	
 	/**
 	 * @param folderId
 	 */
-	protected void readAllLicenses(String folderId) {
+	protected void readAllLicenses(String folderId) 
+	{
 		try
 		{
 			
@@ -320,19 +539,7 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 			
 			for(ContentEntity entity : (List<ContentEntity>) collection.getMemberResources())
 			{
-				if(entity.isResource())
-				{
-					ContentResource resource = (ContentResource) entity;
-					Collection<CreativeCommonsLicense> licenses = readLicenses(resource);
-					
-					if(licenses != null)
-					{
-						for(CreativeCommonsLicense license : licenses)
-						{
-							this.licenses.put(license.getUri(), license);
-						}
-					}
-				}
+				extractLicenses(entity);
 			}
 		}
 		catch(IdUnusedException e)
@@ -349,17 +556,84 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 	}
 
 	/**
+	 * @param folderId
+	 */
+	protected void readAllJurisdictions(String folderId) 
+	{
+		try
+		{
+			
+			ContentCollection collection = this.contentService.getCollection(folderId);
+			
+			for(ContentEntity entity : (List<ContentEntity>) collection.getMemberResources())
+			{
+				extractJurisdictions(entity);
+			}
+		}
+		catch(IdUnusedException e)
+		{
+			logger.debug("IdUnusedException " + e, e);
+		}
+		catch(TypeException e)
+		{
+			logger.debug("TypeException " + e, e);
+		} catch (PermissionException e) 
+		{
+			logger.debug("PermissionException " + e, e);
+		}
+	}
+
+	/**
+	 * @param entity
+	 */
+	protected void extractLicenses(ContentEntity entity) 
+	{
+		if(entity.isResource())
+		{
+			ContentResource resource = (ContentResource) entity;
+			readLicenses(resource);
+		}
+		else if(entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			for(ContentEntity child : (List<ContentEntity>) collection.getMemberResources())
+			{
+				extractLicenses(child);
+			}
+		}
+	}
+
+	/**
+	 * @param entity
+	 */
+	protected void extractJurisdictions(ContentEntity entity) 
+	{
+		if(entity.isResource())
+		{
+			ContentResource resource = (ContentResource) entity;
+			readJurisdictions(resource);
+		}
+		else if(entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			for(ContentEntity child : (List<ContentEntity>) collection.getMemberResources())
+			{
+				extractJurisdictions(child);
+			}
+		}
+	}
+
+	/**
 	 * @param resource
 	 * @return
 	 */
-	protected Collection<CreativeCommonsLicense> readLicenses(ContentResource resource) 
+	protected void readLicenses(ContentResource resource) 
 	{
-		List<CreativeCommonsLicense> list = new ArrayList<CreativeCommonsLicense>();
 		try
 		{
 			InputStream in = resource.streamContent();
 			Document doc = Xml.readDocumentFromStream(in);
-			NodeList licenses = doc.getElementsByTagName("cc:License");
+			NodeList licenses = doc.getElementsByTagName(CC_LICENSE);
 			for(int i = 0; i < licenses.getLength(); i++)
 			{
 				Node license_node = licenses.item(i);
@@ -372,7 +646,7 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 					license.setJurisdiction(getNodeResourceValue(license_element, CC_JURISDICTION));
 					license.setSource(getNodeResourceValue(license_element, DC_SOURCE));
 					license.setReplacedBy(this.getNodeResourceValue(license_element, DCQ_IS_REPLACED_BY));
-					license.setVersion(this.getNodeResourceValue(license_element, DCQ_IS_REPLACED_BY));
+					license.setVersion(this.getNodeValue(license_element, DCQ_HAS_VERSION));
 					license.setLegalcode(this.getNodeResourceValue(license_element, CC_LEGALCODE));
 					license.setCreator(this.getNodeResourceValue(license_element, DC_CREATOR));
 					
@@ -383,7 +657,7 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 					license.addDescriptions(getLocalizationMap(license_element, DC_DESCRIPTION));
 					license.addTitles(this.getLocalizationMap(license_element, DC_TITLE));
 					
-					list.add(license);
+					this.addLicense(license);
 				}
 				
 			}
@@ -392,7 +666,46 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 		{
 			logger.warn("Exception " + e, e);
 		}
-		return list;
+		
+	}
+
+	/**
+	 * @param resource
+	 * @return
+	 */
+	protected void readJurisdictions(ContentResource resource) 
+	{
+		try
+		{
+			InputStream in = resource.streamContent();
+			Document doc = Xml.readDocumentFromStream(in);
+			NodeList jurisdiction_nodes = doc.getElementsByTagName(CC_JURISDICTION);
+			for(int i = 0; i < jurisdiction_nodes.getLength(); i++)
+			{
+				Node jurisdiction_node = jurisdiction_nodes.item(i);
+				if (jurisdiction_node instanceof Element)
+				{
+					Element jurisdction_element = (Element) jurisdiction_node;
+					
+					CreativeCommonsJurisdiction ccJurisdiction = new CreativeCommonsJurisdictionImpl();
+					
+					ccJurisdiction.setUri(jurisdction_element.getAttribute(RDF_ABOUT));
+					ccJurisdiction.setDefaultLanguage(this.getNodeValue(jurisdction_element, CC_DEFAULT_LANGUAGE));
+					ccJurisdiction.setLanguage(this.getNodeValue(jurisdction_element, DC_LANGUAGE));
+					ccJurisdiction.setJurisdictionSite(this.getNodeResourceValue(jurisdction_element, CC_JURISDICTION_SITE));
+					ccJurisdiction.setTitles(this.getLocalizationMap(jurisdction_element, DC_TITLE));
+					
+					this.jurisdictions.put(ccJurisdiction.getUri(), ccJurisdiction);
+					
+				}
+			}
+			
+		}
+		catch(Exception e)
+		{
+			logger.warn("Exception " + e, e);
+		}
+		
 	}
 
 	/**
@@ -472,7 +785,33 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 		return values;
 	}
 
-	public void update(Observable arg0, Object arg1) {
+	/**
+	 * @param parent
+	 * @param node_name
+	 * @return
+	 */
+	protected String getNodeValue(Element parent, String node_name) 
+	{
+		NodeList nodes = parent.getElementsByTagName(node_name);
+		String value = "";
+		for( int n = 0; n < nodes.getLength(); n++)
+		{
+			Node node = nodes.item(n);
+			if(node instanceof Element)
+			{
+				Element element = (Element) node;
+				String text = element.getTextContent();
+				if(text != null && ! text.trim().equals(""))
+				{
+					value += text;
+				}
+			}
+		}
+		return value;
+	}
+
+	public void update(Observable arg0, Object arg1) 
+	{
 		if (arg1 instanceof Event) {
 			Event event = (Event) arg1;
 			/*
@@ -482,9 +821,8 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 			if (event.getModify()) {
 				String refstr = event.getResource();
 
-				if (refstr != null
-						&& refstr.startsWith(this.rootFolderReference
-								+ this.relativeFolderPath)) {
+				if (refstr != null && refstr.startsWith(this.rootFolderReference + this.licensesFolderPath)) 
+				{
 					logger.debug("Updating configuration from " + refstr);
 					updateConfig(refstr);
 				}
@@ -498,23 +836,15 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 		ContentEntity entity = (ContentEntity) reference.getEntity();
 		if(entity == null)
 		{
-			logger.info("Null entity: refstr == " + refstr);
+			logger.debug("Null entity: refstr == " + refstr);
 		}
 		else if(entity.isResource())
 		{
-			Collection<CreativeCommonsLicense> licenses = this.readLicenses((ContentResource) entity);
-			if(licenses != null && ! licenses.isEmpty())
-			{
-				for(CreativeCommonsLicense license : licenses)
-				{
-					this.addLicense(license);
-					logger.info(license.toJSON());
-				}
-			}
+			this.readLicenses((ContentResource) entity);
 		}
 		else
 		{
-			logger.info("Entity is collection: refstr == " + refstr);
+			logger.debug("Entity is collection: refstr == " + refstr);
 			// read files from folder and update
 		}
 
@@ -524,6 +854,8 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 	protected void addLicense(CreativeCommonsLicense license) 
 	{
 		String uri = license.getUri();
+		this.licenses.put(uri, license);
+		
 		indexLicense(uri, ATTR_VERSION, license.getVersion());
 		String jurisdiction = license.getJurisdiction();
 		if(jurisdiction == null || jurisdiction.trim().equals(""))
@@ -580,6 +912,22 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 			}
 			set.add(uri);
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.rights.api.CreativeCommonsLicenseManager#getJurisdictions()
+	 */
+	public Map<String, String> getJurisdictions() 
+	{
+		Map<String,String> jurisdictions = new HashMap<String,String>();
+		
+		for(String key : this.jurisdictions.keySet())
+		{
+			CreativeCommonsJurisdiction jurisdiction = this.jurisdictions.get(key);
+			jurisdictions.put(jurisdiction.getTitle(), key);
+		}
+		
+		return jurisdictions;
 	}
 
 }

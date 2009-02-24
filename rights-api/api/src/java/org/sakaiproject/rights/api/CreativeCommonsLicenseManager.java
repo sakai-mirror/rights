@@ -22,6 +22,8 @@
 package org.sakaiproject.rights.api;
 
 import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,8 +33,12 @@ import java.util.Set;
  */
 public interface CreativeCommonsLicenseManager 
 {
-	public static final String CC_JURISDICTION = "cc:jurisdiction";
+	public static final String CC_DEFAULT_LANGUAGE = "cc:defaultLanguage";
+	public static final String CC_JURISDICTION_SITE = "cc:jurisdictionSite";
+	public static final String CC_JURISDICTION = "cc:Jurisdiction";
+	public static final String DC_LANGUAGE = "dc:language";
 	public static final String CC_LEGALCODE = "cc:legalcode";
+	public static final String CC_LICENSE = "cc:License";
 	public static final String CC_PERMITS = "cc:permits";
 	public static final String CC_PROHIBITS = "cc:prohibits";
 	public static final String CC_REQUIRES = "cc:requires";
@@ -47,7 +53,7 @@ public interface CreativeCommonsLicenseManager
 	public static final String XML_LANG = "xml:lang";
 	
 	public static final String LATEST_VERSION = "LATEST_VERSION";
-	public static final String DEFAULT_JURISDICTION = "DEFAULT_JURISDICTION";
+	public static final String DEFAULT_JURISDICTION = "unported";
 
 	/**
 	 * 
@@ -56,7 +62,7 @@ public interface CreativeCommonsLicenseManager
 	 * 		criteria, or null for all versions. 
 	 * @param jurisdition The jurisdiction using one of the jurisdiction codes at 
 	 * 		http://creativecommons.org/international/ (e.g. http://creativecommons.org/international/us/
-	 * 		or http://creativecommons.org/international/it/). For the default license, use 
+	 * 		or http://creativecommons.org/international/it/). For the unported license, use 
 	 * 		DEFAULT_JURISDICTION as the jurisdiction.  For all jurisdictions, use null as the
 	 * 		jurisdiction.
 	 * @param permits A set of string identifiers for Creative Commons permissions (actual URLs). 
@@ -68,5 +74,11 @@ public interface CreativeCommonsLicenseManager
 	 * @return
 	 */
 	public Collection<CreativeCommonsLicense> getLicenses(String version, String jurisdiction, Set<String> permits, Set<String> prohibits, Set<String> requires);
+
+	/**
+	 * @param locale
+	 * @return
+	 */
+	public java.util.Map<String, String> getJurisdictions();
 
 }

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 Sakai Foundation
+ * Copyright (c) 2007, 2008, 2009 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 package org.sakaiproject.rights.api;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +34,7 @@ import java.util.Set;
  *	Requirements (restrictions imposed by the license)
  *
   */
-public interface CreativeCommonsLicense 
+public interface CreativeCommonsLicense extends Comparable
 {
 	public String getIdentifier();
 	
@@ -130,7 +131,7 @@ public interface CreativeCommonsLicense
 	public void addRequirement(String requirement);
 
 	/**
-	 * @param requirement
+	 * @param requirements
 	 */
 	public void addRequirements(Set<String> requirements);
 
@@ -150,6 +151,14 @@ public interface CreativeCommonsLicense
 
 	public Map<String, String> getTitles();
 
+	/*****************************************************
+	 * JSON import/export
+	 *****************************************************/
+	
 	public String toJSON();
+	
+	public String toJSON(Locale locale);
+	
+	public void fromJSON(String jsonStr);
 	
 }	// interface CreativeCommonsLicense

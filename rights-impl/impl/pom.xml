@@ -50,6 +50,11 @@
       <classifier>jdk15</classifier>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
 <!--org.sakaiprojectsakai-component${sakai.version}-->
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
@@ -61,6 +66,13 @@
     </dependency>
   </dependencies>
   <build>
-    <resources/>
+    <resources>
+    	<resource>
+    		<directory>${basedir}/src</directory>
+    		<includes>
+    			<include>rdf/**/*.rdf</include>
+    		</includes>
+    	</resource>
+    </resources>
   </build>
 </project>
