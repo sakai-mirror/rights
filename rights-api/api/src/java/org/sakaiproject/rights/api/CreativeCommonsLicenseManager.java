@@ -28,30 +28,11 @@ import java.util.Set;
 
 /**
  *
- * CCLicenseManager
+ * CreativeCommonsLicenseManager
  *
  */
 public interface CreativeCommonsLicenseManager 
 {
-	public static final String CC_DEFAULT_LANGUAGE = "cc:defaultLanguage";
-	public static final String CC_JURISDICTION_SITE = "cc:jurisdictionSite";
-	public static final String CC_JURISDICTION = "cc:Jurisdiction";
-	public static final String DC_LANGUAGE = "dc:language";
-	public static final String CC_LEGALCODE = "cc:legalcode";
-	public static final String CC_LICENSE = "cc:License";
-	public static final String CC_PERMITS = "cc:permits";
-	public static final String CC_PROHIBITS = "cc:prohibits";
-	public static final String CC_REQUIRES = "cc:requires";
-	public static final String DC_CREATOR = "dc:creator";
-	public static final String DC_DESCRIPTION = "dc:description";
-	public static final String DC_SOURCE = "dc:source";
-	public static final String DC_TITLE = "dc:title";
-	public static final String DCQ_HAS_VERSION = "dcq:hasVersion";
-	public static final String DCQ_IS_REPLACED_BY = "dcq:isReplacedBy";
-	public static final String RDF_ABOUT = "rdf:about";
-	public static final String RDF_RESOURCE = "rdf:resource";
-	public static final String XML_LANG = "xml:lang";
-	
 	public static final String LATEST_VERSION = "LATEST_VERSION";
 	public static final String DEFAULT_JURISDICTION = "unported";
 

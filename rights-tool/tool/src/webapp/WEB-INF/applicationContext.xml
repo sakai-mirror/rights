@@ -49,5 +49,7 @@
     </bean>
 -->
 
-	<bean class="org.sakaiproject.rights.tool.infer.CreaticeCommonsLicenseViewParamsInferrer" />
+	<bean class="org.sakaiproject.rights.tool.infer.CreativeCommonsLicenseViewParamsInferrer" 
+			init-method="init">
+	</bean>
 </beans>

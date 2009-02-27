@@ -42,13 +42,14 @@ import uk.org.ponder.rsf.content.ContentTypeInfoRegistry;
 import uk.org.ponder.rsf.content.ContentTypeReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ComponentProducer;
+import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 /**
  * LicenseDialogProducer
  *
  */
-public class LicenseDialogProducer implements ComponentProducer, ContentTypeReporter 
+public class LicenseDialogProducer implements ViewComponentProducer, ContentTypeReporter
 {
 	protected static ResourceLoader rl = new ResourceLoader();
 	
@@ -110,14 +111,14 @@ public class LicenseDialogProducer implements ComponentProducer, ContentTypeRepo
 
 		if(licenses != null)
 		{
-			UIBranchContainer licenseDiv = UIBranchContainer.make(tofill, "licenseInfo:");
-			UIBranchContainer licenseList = UIBranchContainer.make(licenseDiv, "licenseList:");
+			UIBranchContainer licenseList = UIBranchContainer.make(tofill, "licenseList:");
 			
 			SortedSet<CreativeCommonsLicense> licenseSet = new TreeSet<CreativeCommonsLicense>(licenses);
 			for(CreativeCommonsLicense license : licenseSet)
 			{
+				UIBranchContainer licenseItem = UIBranchContainer.make(licenseList, "licenseItem:");
 				String descr = license.getDescription();
-				UIOutput licenseItem = UIOutput.make(licenseList, "licenseItem", (descr == null || descr.trim().equals("") ? license.getTitle() : descr));
+				UIOutput licenseDescr = UIOutput.make(licenseItem, "licenseDescr", (descr == null || descr.trim().equals("") ? license.getTitle() : descr));
 			}
 		}
 		

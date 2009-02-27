@@ -23,32 +23,25 @@ package org.sakaiproject.rights.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.TreeSet;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.rights.api.CreativeCommonsLicense;
 import org.sakaiproject.rights.api.CreativeCommonsLicenseManager;
-import org.sakaiproject.rights.util.RightsException;
 import org.sakaiproject.util.ResourceLoader;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 {
 	private static Log logger = LogFactory.getLog(CreativeCommonsLicenseImpl.class);
 	
-	protected static ResourceLoader rl = new ResourceLoader();
+	protected ResourceLoader rl = new ResourceLoader();
 	
 	protected static String baseURL = "http://creativecommons.org/licenses/";
 	protected String uri;
@@ -435,11 +428,11 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 		
 		if(this.titles != null && ! this.titles.isEmpty())
 		{
-			json.element(CreativeCommonsLicenseManager.DC_TITLE, this.titles);
+			json.element(CreativeCommonsLicenseManagerImpl.DC_TITLE, this.titles);
 		}
 		if(this.descriptions != null && ! this.descriptions.isEmpty())
 		{
-			json.element(CreativeCommonsLicenseManager.DC_DESCRIPTION, this.descriptions);
+			json.element(CreativeCommonsLicenseManagerImpl.DC_DESCRIPTION, this.descriptions);
 		}
 		
 		return json.toString();
@@ -454,11 +447,11 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 		
 		if(this.titles != null && ! this.titles.isEmpty())
 		{
-			json.element(CreativeCommonsLicenseManager.DC_TITLE, getTitle(locale));
+			json.element(CreativeCommonsLicenseManagerImpl.DC_TITLE, getTitle(locale));
 		}
 		if(this.descriptions != null && ! this.descriptions.isEmpty())
 		{
-			json.element(CreativeCommonsLicenseManager.DC_DESCRIPTION, getDescription(locale));
+			json.element(CreativeCommonsLicenseManagerImpl.DC_DESCRIPTION, getDescription(locale));
 		}
 		
 		
@@ -472,43 +465,43 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 	{
 		JSONObject json = new JSONObject();
 		
-		json.element(CreativeCommonsLicenseManager.RDF_ABOUT, this.uri);
+		json.element(CreativeCommonsLicenseManagerImpl.RDF_ABOUT, this.uri);
 		
 		if(this.creator != null && ! this.creator.trim().equals(""))
 		{
-			json.element(CreativeCommonsLicenseManager.DC_CREATOR, this.creator);
+			json.element(CreativeCommonsLicenseManagerImpl.DC_CREATOR, this.creator);
 		}
 		if(this.jurisdiction != null && ! this.jurisdiction.trim().equals(""))
 		{
-			json.element(CreativeCommonsLicenseManager.CC_JURISDICTION, this.jurisdiction);
+			json.element(CreativeCommonsLicenseManagerImpl.CC_JURISDICTION, this.jurisdiction);
 		}
 		if(this.legalcode != null && ! this.legalcode.trim().equals(""))
 		{
-			json.element(CreativeCommonsLicenseManager.CC_LEGALCODE, this.legalcode);
+			json.element(CreativeCommonsLicenseManagerImpl.CC_LEGALCODE, this.legalcode);
 		}
 		if(this.replacedBy != null && ! this.replacedBy.trim().equals(""))
 		{
-			json.element(CreativeCommonsLicenseManager.DCQ_IS_REPLACED_BY, this.replacedBy);
+			json.element(CreativeCommonsLicenseManagerImpl.DCQ_IS_REPLACED_BY, this.replacedBy);
 		}
 		if(this.source != null && ! this.source.trim().equals(""))
 		{
-			json.element(CreativeCommonsLicenseManager.DC_SOURCE, this.source);
+			json.element(CreativeCommonsLicenseManagerImpl.DC_SOURCE, this.source);
 		}
 		if(this.version != null && ! this.version.trim().equals(""))
 		{
-			json.element(CreativeCommonsLicenseManager.DCQ_HAS_VERSION, this.version);
+			json.element(CreativeCommonsLicenseManagerImpl.DCQ_HAS_VERSION, this.version);
 		}
 		if(this.permissions != null && ! this.permissions.isEmpty())
 		{
-			json.element(CreativeCommonsLicenseManager.CC_PERMITS, this.permissions);
+			json.element(CreativeCommonsLicenseManagerImpl.CC_PERMITS, this.permissions);
 		}
 		if(this.prohibitions != null && ! this.prohibitions.isEmpty())
 		{
-			json.element(CreativeCommonsLicenseManager.CC_PROHIBITS, this.prohibitions);
+			json.element(CreativeCommonsLicenseManagerImpl.CC_PROHIBITS, this.prohibitions);
 		}
 		if(this.requirements != null && ! this.requirements.isEmpty())
 		{
-			json.element(CreativeCommonsLicenseManager.CC_REQUIRES, this.requirements);
+			json.element(CreativeCommonsLicenseManagerImpl.CC_REQUIRES, this.requirements);
 		}
 		return json;
 	}
@@ -521,91 +514,91 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 		JSONObject json = JSONObject.fromObject(jsonStr);
 		try
 		{
-			if(json.containsKey(CreativeCommonsLicenseManager.RDF_ABOUT))
+			if(json.containsKey(CreativeCommonsLicenseManagerImpl.RDF_ABOUT))
 			{
-				this.uri = json.getString(CreativeCommonsLicenseManager.RDF_ABOUT);
+				this.uri = json.getString(CreativeCommonsLicenseManagerImpl.RDF_ABOUT);
 				
-				if(json.containsKey(CreativeCommonsLicenseManager.DC_CREATOR))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.DC_CREATOR))
 				{
-					this.creator = json.getString(CreativeCommonsLicenseManager.DC_CREATOR);
+					this.creator = json.getString(CreativeCommonsLicenseManagerImpl.DC_CREATOR);
 				}
 				
-				if(json.containsKey(CreativeCommonsLicenseManager.CC_JURISDICTION))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.CC_JURISDICTION))
 				{
-					this.jurisdiction = json.getString(CreativeCommonsLicenseManager.CC_JURISDICTION);
+					this.jurisdiction = json.getString(CreativeCommonsLicenseManagerImpl.CC_JURISDICTION);
 				}
 
-				if(json.containsKey(CreativeCommonsLicenseManager.CC_LEGALCODE))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.CC_LEGALCODE))
 				{
-					this.legalcode = json.getString(CreativeCommonsLicenseManager.CC_LEGALCODE);
+					this.legalcode = json.getString(CreativeCommonsLicenseManagerImpl.CC_LEGALCODE);
 				}
 
-				if(json.containsKey(CreativeCommonsLicenseManager.DCQ_IS_REPLACED_BY))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.DCQ_IS_REPLACED_BY))
 				{
-					this.replacedBy = json.getString(CreativeCommonsLicenseManager.DCQ_IS_REPLACED_BY);
+					this.replacedBy = json.getString(CreativeCommonsLicenseManagerImpl.DCQ_IS_REPLACED_BY);
 				}
 
-				if(json.containsKey(CreativeCommonsLicenseManager.DC_SOURCE))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.DC_SOURCE))
 				{
-					this.source = json.getString(CreativeCommonsLicenseManager.DC_SOURCE);
+					this.source = json.getString(CreativeCommonsLicenseManagerImpl.DC_SOURCE);
 				}
 
-				if(json.containsKey(CreativeCommonsLicenseManager.DCQ_HAS_VERSION))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.DCQ_HAS_VERSION))
 				{
-					this.version = json.getString(CreativeCommonsLicenseManager.DCQ_HAS_VERSION);
+					this.version = json.getString(CreativeCommonsLicenseManagerImpl.DCQ_HAS_VERSION);
 				}
 
-				if(json.containsKey(CreativeCommonsLicenseManager.CC_PERMITS))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.CC_PERMITS))
 				{
-					JSONArray jsonlist = json.getJSONArray(CreativeCommonsLicenseManager.CC_PERMITS);
+					JSONArray jsonlist = json.getJSONArray(CreativeCommonsLicenseManagerImpl.CC_PERMITS);
 					for(int i = 0; i < jsonlist.size(); i++)
 					{
 						try
 						{
 							this.permissions.add(jsonlist.getString(i));
 						}
-						catch(JSONException e)
+						catch(Exception e)
 						{
 							logger.debug("Problem getting permission at index " + i + " from JSON array: \n" + jsonlist.toString() + "\nuri " + this.uri);
 						}
 					}
 				}
 				
-				if(json.containsKey(CreativeCommonsLicenseManager.CC_PROHIBITS))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.CC_PROHIBITS))
 				{
-					JSONArray jsonlist = json.getJSONArray(CreativeCommonsLicenseManager.CC_PROHIBITS);
+					JSONArray jsonlist = json.getJSONArray(CreativeCommonsLicenseManagerImpl.CC_PROHIBITS);
 					for(int i = 0; i < jsonlist.size(); i++)
 					{
 						try
 						{
 							this.prohibitions.add(jsonlist.getString(i));
 						}
-						catch(JSONException e)
+						catch(Exception e)
 						{
 							logger.debug("Problem getting prohibition at index " + i + " from JSON array: \n" + jsonlist.toString() + "\nuri " + this.uri);
 						}
 					}
 				}
 				
-				if(json.containsKey(CreativeCommonsLicenseManager.CC_REQUIRES))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.CC_REQUIRES))
 				{
-					JSONArray jsonlist = json.getJSONArray(CreativeCommonsLicenseManager.CC_REQUIRES);
+					JSONArray jsonlist = json.getJSONArray(CreativeCommonsLicenseManagerImpl.CC_REQUIRES);
 					for(int i = 0; i < jsonlist.size(); i++)
 					{
 						try
 						{
 							this.requirements.add(jsonlist.getString(i));
 						}
-						catch(JSONException e)
+						catch(Exception e)
 						{
 							logger.debug("Problem getting requirement at index " + i + " from JSON array: \n" + jsonlist.toString() + "\nuri " + this.uri);
 						}
 					}
 				}
 				
-				if(json.containsKey(CreativeCommonsLicenseManager.DC_TITLE))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.DC_TITLE))
 				{
-					JSONObject jsonobj = json.getJSONObject(CreativeCommonsLicenseManager.DC_TITLE);
+					JSONObject jsonobj = json.getJSONObject(CreativeCommonsLicenseManagerImpl.DC_TITLE);
 					
 					for(String key : (Set<String>) jsonobj.keySet())
 					{
@@ -613,16 +606,16 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 						{
 							this.titles.put(key, jsonobj.getString(key));
 						}
-						catch(JSONException e)
+						catch(Exception e)
 						{
 							logger.debug("Problem getting title for key " + key + " for uri " + this.uri + " JSON for titles:\n" + jsonobj.toString());
 						}
 					}
 				}
 				
-				if(json.containsKey(CreativeCommonsLicenseManager.DC_DESCRIPTION))
+				if(json.containsKey(CreativeCommonsLicenseManagerImpl.DC_DESCRIPTION))
 				{
-					JSONObject jsonobj = json.getJSONObject(CreativeCommonsLicenseManager.DC_DESCRIPTION);
+					JSONObject jsonobj = json.getJSONObject(CreativeCommonsLicenseManagerImpl.DC_DESCRIPTION);
 					
 					for(String key : (Set<String>) jsonobj.keySet())
 					{
@@ -630,7 +623,7 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 						{
 							this.descriptions.put(key, jsonobj.getString(key));
 						}
-						catch(JSONException e)
+						catch(Exception e)
 						{
 							logger.debug("Problem getting description for key " + key + " for uri " + this.uri + " JSON for titles:\n" + jsonobj.toString());
 						}
@@ -643,7 +636,7 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 			}
 			
 		}
-		catch(JSONException e)
+		catch(Exception e)
 		{
 			logger.warn("Error processing license from json:\n" + jsonStr, e);
 		}

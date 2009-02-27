@@ -2,15 +2,13 @@
 /*global jQuery*/
 /*global fluid*/
 
-var fluid = fluid || {};
+var ccLicense = ccLicense || {};
 
-fluid.licenseDialog = function () {
+ccLicense.licenseDialog = function () {
 
     return {
         setup: function () {
 			
         }
-
-
     };
 }();

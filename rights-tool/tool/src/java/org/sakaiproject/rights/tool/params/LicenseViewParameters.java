@@ -33,6 +33,11 @@ public class LicenseViewParameters extends SimpleViewParameters
 	public String version;
 	public String jurisdiction;
 	
+	public LicenseViewParameters() 
+	{
+		
+	}
+	
 	public LicenseViewParameters(String viewId) 
 	{
 		this.viewID = viewId;
