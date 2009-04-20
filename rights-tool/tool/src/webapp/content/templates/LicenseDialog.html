@@ -1,184 +1,193 @@
 <!-- style="display:none"  -->
-<div id="basicModalContent" class="specialLink">
-	<div id="license-setter">
-		<h3>Set licenses</h3>
-		<table border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td style="padding:0 5px;text-align:right" id="helpmelink">
-					<span id="holder" />
-					<a href="#">Help me decide</a>
-				</td>
-				<td rowspan="7" id="helpercont">
-					<!-- style="display:none" -->
-					<div id="licenseInfo">
-						<ul rsf:id="licenseList:">
-							<li rsf:id="licenseItem:" id="help-attr"><span rsf:id="licenseDescr">Explanation: Attribution</span></li>
-							<li rsf:id="licenseItem:" id="help-attr_share"><span rsf:id="licenseDescr">Explanation: Attribution Share Alike</span></li>
-							<li rsf:id="licenseItem:" id="help-attr_noder"><span rsf:id="licenseDescr">Explanation: Attribution No Derivatives</span></li>	
-							<li rsf:id="licenseItem:" id="help-attr_nocom"><span rsf:id="licenseDescr">Explanation: Attribution Non-Commercial</span></li>
-							<li rsf:id="licenseItem:" id="help-attr_nocom_share"><span rsf:id="licenseDescr">Explanation: Attribution Non-Commercial Share Alike</span></li>
-							<li rsf:id="licenseItem:" id="help-attr_nocom_noder"><span rsf:id="licenseDescr">Explanation: Attribution Non-Commercial No Derivatives</span></li>
-						</ul>
-					</div>
-					<!-- style="display:none" -->
-					<div id="helper">
-						<h4>Allow commercial uses of your work?</h4>
-						<ul class="choices">
-							<li>
-								<input checked="checked" name="field_commercial" value="y" id="comm_y" type="radio" />
-								<label for="comm_y">
-										Yes
-									</label>
-							</li>
-							<li>
-								<input name="field_commercial" value="n" id="comm_n" type="radio" />
-								<label for="comm_n">
-										No
-									</label>
-							</li>
-						</ul>
-						<h4>Allow modifications of your work?</h4>
-						<ul class="choices">
-							<li>
-								<input checked="checked" name="field_derivatives" value="der-y" id="der_y" type="radio" />
-								<label for="der_y">
-										Yes
-									</label>
-							</li>
-							<li>
-								<input name="field_derivatives" value="sa" id="der_s" type="radio" />
-								<label for="der_s">
-									<span>Yes, as long as others share alike</span>
-								</label>
-							</li>
-							<li>
-								<input name="field_derivatives" value="n" id="der_n" type="radio" />
-								<label for="der_n">
-										No
-									</label>
-							</li>
-						</ul>
-						<h4>Jurisdiction of your license</h4>
-						<select rsf:id="jurisdictionSelector" name="field_jurisdiction">
-							<option value="unported" selected="selected">Unported</option>
-							<option value="ar">Argentina</option>
-							<option value="at">Austria</option>
-							<option value="au">Australia</option>
-							<option value="be">Belgium</option>
-							<option value="bg">Bulgaria</option>
-							<option value="br">Brazil</option>
-							<option value="ca">Canada</option>
-							<option value="ch">Switzerland</option>
-							<option value="cl">Chile</option>
-							<option value="cn">China Mainland</option>
-							<option value="co">Colombia</option>
-							<option value="de">Germany</option>
-							<option value="dk">Denmark</option>
-							<option value="ec">Ecuador</option>
-							<option value="es">Spain</option>
-							<option value="fi">Finland</option>
-							<option value="fr">France</option>
-							<option value="gr">Greece</option>
-							<option value="gt">Guatemala</option>
-							<option value="hk">Hong Kong</option>
-							<option value="hr">Croatia</option>
-							<option value="hu">Hungary</option>
-							<option value="il">Israel</option>
-							<option value="in">India</option>
-							<option value="it">Italy</option>
-							<option value="jp">Japan</option>
-							<option value="kr">Korea</option>
-							<option value="lu">Luxembourg</option>
-							<option value="mk">Macedonia</option>
-							<option value="mt">Malta</option>
-							<option value="mx">Mexico</option>
-							<option value="my">Malaysia</option>
-							<option value="nl">Netherlands</option>
-							<option value="no">Norway</option>
-							<option value="nz">New Zealand</option>
-							<option value="pe">Peru</option>
-							<option value="ph">Philippines</option>
-							<option value="pl">Poland</option>
-							<option value="pr">Puerto Rico</option>
-							<option value="pt">Portugal</option>
-							<option value="ro">Romania</option>
-							<option value="rs">Serbia</option>
-							<option value="scotland">UK: Scotland</option>
-							<option value="se">Sweden</option>
-							<option value="sg">Singapore</option>
-							<option value="si">Slovenia</option>
-							<option value="tw">Taiwan</option>
-							<option value="uk">UK: England &amp; Wales</option>
-							<option value="us" >United States</option>
-							<option value="za">South Africa</option>
-						</select>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<table id="licenseIcons" border="0" cellpadding="0" cellspacing="0">
-						<tr id="attr">
-							<td class="icon">
-								<img src="/sakai-content-tool/images/attr.png" />
-								<input type="radio" name="license" id="attr-s" />
-							</td>
-							<td class="label">
-								<label for="xxattr-s">Attribution</label>
-							</td>
-						</tr>
-						<tr id="attr_share">
-							<td class="icon">
-								<img src="/sakai-content-tool/images/attr_share.png" />
-								<input type="radio" name="license" id="attr_share-s" />
-							</td>
-							<td class="label">
-								<label for="xxattr-share-s">Attribution Share Alike</label>
-							</td>
-						</tr>
-						<tr id="attr_noder">
-							<td class="icon">	
-								<img src="/sakai-content-tool/images/attr_noder.png" />	
-								<input type="radio" name="license" id="attr_noder-s" />	
-							</td>	
-							<td class="label">	
-								<label for="xxattr-noder-s">Attribution No Derivatives</label>	
-							</td>	
-						</tr>	
-						<tr id="attr_nocom">	
-							<td class="icon">	
-								<img src="/sakai-content-tool/images/attr_nocom.png" />	
-								<input type="radio" name="license" id="attr_nocom-s" />	
-							</td>	
-							<td class="label">	
-								<label for="xxattr-nocom-s">Attribution Non-Commercial</label>
-							</td>	
-						</tr>	
-						<tr id="attr_nocom_share">	
-							<td class="icon">	
-								<img src="/sakai-content-tool/images/attr_nocom_share.png" />	
-								<input type="radio" name="license" id="attr_nocom_share-s" />	
-							</td>	
-							<td class="label">	
-								<label for="xxattr-nocom-share-s">Attribution Non-Commercial Share Alike</label>
-							</td>	
-						</tr>	
-						<tr id="attr_nocom_noder">	
-							<td class="icon">	
-								<img src="/sakai-content-tool/images/attr_nocom_noder.png" />	
-								<input type="radio" name="license" id="attr_nocom_noder-s" />	
-							</td>	
-							<td class="label">	
-								<label for="xxattr-nocom-noder-s">Attribution Non-Commercial No Derivatives</label>
-							</td>	
-						</tr>	
-					</table>	
-				</td>	
-			</tr>	
-		</table>	
-	</div>	
-	<p>	
-		<input type="button" value="Done" id="setLicense" class="simplemodal-close" disabled="true"/>	
-		<input type="button" value="Cancel"  class="simplemodal-close"/>	
-	</p>	
+<div rsf:id="basicModalContent:" id="basicModalContent" class="specialLink">
+	<form rsf:id="license-setter-form" action="#">
+		<div id="license-setter">
+			<h3 rsf:id="dialog-title">Set licenses</h3>
+			<table border="0" cellpadding="0" cellspacing="0">
+				<tr>
+					<td style="padding:0 5px;text-align:right" id="helpmelink">
+						<span id="holder" />
+						<a id="toggle-help" href="#"><span rsf:id="toggle-help">Help me decide</span></a>
+					</td>
+					<td rowspan="7" id="helpercont">
+						<!-- style="display:none" -->
+						<div id="licenseInfo">
+							<ul rsf:id="licenseList:">
+								<li rsf:id="licenseItem:" id="help-attr"><span rsf:id="licenseDescr">Explanation: Attribution</span></li>
+								<li rsf:id="licenseItem:" id="help-attr_share"><span rsf:id="licenseDescr">Explanation: Attribution Share Alike</span></li>
+								<li rsf:id="licenseItem:" id="help-attr_noder"><span rsf:id="licenseDescr">Explanation: Attribution No Derivatives</span></li>	
+								<li rsf:id="licenseItem:" id="help-attr_nocom"><span rsf:id="licenseDescr">Explanation: Attribution Non-Commercial</span></li>
+								<li rsf:id="licenseItem:" id="help-attr_nocom_share"><span rsf:id="licenseDescr">Explanation: Attribution Non-Commercial Share Alike</span></li>
+								<li rsf:id="licenseItem:" id="help-attr_nocom_noder"><span rsf:id="licenseDescr">Explanation: Attribution Non-Commercial No Derivatives</span></li>
+							</ul>
+						</div>
+						<!-- style="display:none" -->
+						<div rsf:id="licenseHelper:" id="helper">
+							<div rsf:id="checkboxDiv:" id="questionDiv1">
+								<h4 rsf:id="question">Allow commercial uses of your work?</h4>
+								<ul rsf:id="responses:" class="choices">
+									<li rsf:id="response:">
+										<input checked="checked" name="field_commercial" value="y" id="comm_y" type="radio" />
+										<label for="comm_y">
+											Yes
+										</label>
+									</li>
+									<li rsf:id="response:">
+										<input name="field_commercial" value="n" id="comm_n" type="radio" />
+										<label for="comm_n">
+											No
+										</label>
+									</li>
+								</ul>
+							</div>
+							<div rsf:id="checkboxDiv:" id="questionDiv2">
+								<h4 rsf:id="question">Allow modifications of your work?</h4>
+								<ul  rsf:id="responses:" class="choices">
+									<li rsf:id="response:">
+										<input rsf:id="responseRadio" checked="checked" name="field_derivatives" value="der-y" id="der_y" type="radio" />
+										<label rsf:id="responseLabel" for="der_y">
+												Yes
+											</label>
+									</li>
+									<li rsf:id="response:">
+										<input name="field_derivatives" value="sa" id="der_s" type="radio" />
+										<label for="der_s">
+											<span>Yes, as long as others share alike</span>
+										</label>
+									</li>
+									<li rsf:id="response:">
+										<input name="field_derivatives" value="n" id="der_n" type="radio" />
+										<label for="der_n">
+												No
+											</label>
+									</li>
+								</ul>
+							</div>
+							<div rsf:id="selectDiv:" id="questionDiv3">
+								<h4 rsf:id="question">Jurisdiction of your license</h4>
+								<span rsf:id="jurisdictionSelectorMonkey"></span>
+								<select rsf:id="jurisdictionSelector" name="field_jurisdiction">
+									<option value="unported" selected="selected">Unported</option>
+									<option value="ar">Argentina</option>
+									<option value="at">Austria</option>
+									<option value="au">Australia</option>
+									<option value="be">Belgium</option>
+									<option value="bg">Bulgaria</option>
+									<option value="br">Brazil</option>
+									<option value="ca">Canada</option>
+									<option value="ch">Switzerland</option>
+									<option value="cl">Chile</option>
+									<option value="cn">China Mainland</option>
+									<option value="co">Colombia</option>
+									<option value="de">Germany</option>
+									<option value="dk">Denmark</option>
+									<option value="ec">Ecuador</option>
+									<option value="es">Spain</option>
+									<option value="fi">Finland</option>
+									<option value="fr">France</option>
+									<option value="gr">Greece</option>
+									<option value="gt">Guatemala</option>
+									<option value="hk">Hong Kong</option>
+									<option value="hr">Croatia</option>
+									<option value="hu">Hungary</option>
+									<option value="il">Israel</option>
+									<option value="in">India</option>
+									<option value="it">Italy</option>
+									<option value="jp">Japan</option>
+									<option value="kr">Korea</option>
+									<option value="lu">Luxembourg</option>
+									<option value="mk">Macedonia</option>
+									<option value="mt">Malta</option>
+									<option value="mx">Mexico</option>
+									<option value="my">Malaysia</option>
+									<option value="nl">Netherlands</option>
+									<option value="no">Norway</option>
+									<option value="nz">New Zealand</option>
+									<option value="pe">Peru</option>
+									<option value="ph">Philippines</option>
+									<option value="pl">Poland</option>
+									<option value="pr">Puerto Rico</option>
+									<option value="pt">Portugal</option>
+									<option value="ro">Romania</option>
+									<option value="rs">Serbia</option>
+									<option value="scotland">UK: Scotland</option>
+									<option value="se">Sweden</option>
+									<option value="sg">Singapore</option>
+									<option value="si">Slovenia</option>
+									<option value="tw">Taiwan</option>
+									<option value="uk">UK: England &amp; Wales</option>
+									<option value="us" >United States</option>
+									<option value="za">South Africa</option>
+								</select>
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table id="licenseIcons" border="0" cellpadding="0" cellspacing="0">
+							<tr id="attr">
+								<td class="icon">
+									<img src="/sakai-content-tool/images/attr.png" />
+									<input type="radio" name="license" id="attr-s" />
+								</td>
+								<td class="label">
+									<label for="xxattr-s">Attribution</label>
+								</td>
+							</tr>
+							<tr id="attr_share">
+								<td class="icon">
+									<img src="/sakai-content-tool/images/attr_share.png" />
+									<input type="radio" name="license" id="attr_share-s" />
+								</td>
+								<td class="label">
+									<label for="xxattr-share-s">Attribution Share Alike</label>
+								</td>
+							</tr>
+							<tr id="attr_noder">
+								<td class="icon">	
+									<img src="/sakai-content-tool/images/attr_noder.png" />	
+									<input type="radio" name="license" id="attr_noder-s" />	
+								</td>	
+								<td class="label">	
+									<label for="xxattr-noder-s">Attribution No Derivatives</label>	
+								</td>	
+							</tr>	
+							<tr id="attr_nocom">	
+								<td class="icon">	
+									<img src="/sakai-content-tool/images/attr_nocom.png" />	
+									<input type="radio" name="license" id="attr_nocom-s" />	
+								</td>	
+								<td class="label">	
+									<label for="xxattr-nocom-s">Attribution Non-Commercial</label>
+								</td>	
+							</tr>	
+							<tr id="attr_nocom_share">	
+								<td class="icon">	
+									<img src="/sakai-content-tool/images/attr_nocom_share.png" />	
+									<input type="radio" name="license" id="attr_nocom_share-s" />	
+								</td>	
+								<td class="label">	
+									<label for="xxattr-nocom-share-s">Attribution Non-Commercial Share Alike</label>
+								</td>	
+							</tr>	
+							<tr id="attr_nocom_noder">	
+								<td class="icon">	
+									<img src="/sakai-content-tool/images/attr_nocom_noder.png" />	
+									<input type="radio" name="license" id="attr_nocom_noder-s" />	
+								</td>	
+								<td class="label">	
+									<label for="xxattr-nocom-noder-s">Attribution Non-Commercial No Derivatives</label>
+								</td>	
+							</tr>	
+						</table>	
+					</td>	
+				</tr>	
+			</table>
+		</div>	
+		<p>	
+			<input type="button" value="Done" id="setLicense" class="simplemodal-close" disabled="true"/>	
+			<input type="button" value="Cancel"  class="simplemodal-close"/>	
+		</p>	
+	</form>	
 </div>

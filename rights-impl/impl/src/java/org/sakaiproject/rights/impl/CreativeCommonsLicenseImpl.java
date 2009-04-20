@@ -198,6 +198,11 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 	 */
 	public String getIdentifier() 
 	{
+		if(this.identifier == null)
+		{
+			calculateIdentifier();
+		}
+
 		return this.identifier;
 	}
 
@@ -409,6 +414,24 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 	public void setUri(String uri) 
 	{
 		this.uri = uri;
+		if(this.identifier == null)
+		{
+			calculateIdentifier();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	protected void calculateIdentifier() 
+	{
+		if(this.uri != null)
+		{
+			if(baseURL != null && this.uri.length() > baseURL.length())
+			{
+				this.identifier = this.uri.substring(baseURL.length()).replace('/', '_').replace('-', '_');
+			}
+		}
 	}
 
 	/* (non-Javadoc)

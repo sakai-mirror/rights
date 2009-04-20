@@ -35,6 +35,7 @@ public interface CreativeCommonsLicenseManager
 {
 	public static final String LATEST_VERSION = "LATEST_VERSION";
 	public static final String DEFAULT_JURISDICTION = "unported";
+	public static final String CC_LICENSE_CHOOSER = "cc-license-chooser";
 
 	/**
 	 * 
@@ -61,5 +62,11 @@ public interface CreativeCommonsLicenseManager
 	 * @return
 	 */
 	public java.util.Map<String, String> getJurisdictions();
+
+	/**
+	 * @param ccLicenseChooser
+	 * @return
+	 */
+	public CreativeCommonsStringMapper getStringMapper(String ccLicenseChooser);
 
 }

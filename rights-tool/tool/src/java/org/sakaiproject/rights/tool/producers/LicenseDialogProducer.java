@@ -22,26 +22,33 @@
 package org.sakaiproject.rights.tool.producers;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import net.sf.json.JSONArray;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.rights.api.CreativeCommonsLicense;
 import org.sakaiproject.rights.api.CreativeCommonsLicenseManager;
+import org.sakaiproject.rights.api.CreativeCommonsStringMapper;
 import org.sakaiproject.rights.tool.params.LicenseViewParameters;
 import org.sakaiproject.util.ResourceLoader;
 
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
+import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
+import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.content.ContentTypeInfoRegistry;
 import uk.org.ponder.rsf.content.ContentTypeReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.ComponentProducer;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
@@ -52,13 +59,13 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 public class LicenseDialogProducer implements ViewComponentProducer, ContentTypeReporter
 {
 	protected static ResourceLoader rl = new ResourceLoader();
+	static final Log logger = LogFactory.getLog(LicenseDialogProducer.class);
 	
 	public static final String VIEW_ID = "LicenseDialog";
 
 	CreativeCommonsLicenseManager creativeCommonsLicenseManager;
 	public void setCreativeCommonsLicenseManager(CreativeCommonsLicenseManager creativeCommonsLicenseManager)
 	{
-		System.out.print(this + "creativeCommonsLicenseManager(" + creativeCommonsLicenseManager + ")");
 		this.creativeCommonsLicenseManager = creativeCommonsLicenseManager;
 	}
 
@@ -105,44 +112,90 @@ public class LicenseDialogProducer implements ViewComponentProducer, ContentType
 			}
 		}
 
-		System.out.print(this + ".fillComponents(" + viewparams + ") uri == " + uri + " version == " + version + " jurisdiction == " + jurisdiction);
-
 		licenses = this.creativeCommonsLicenseManager.getLicenses(version, jurisdiction, permits, prohibits, requires);
-
-		if(licenses != null)
+		CreativeCommonsStringMapper stringMapper = this.creativeCommonsLicenseManager.getStringMapper(CreativeCommonsLicenseManager.CC_LICENSE_CHOOSER);
+		
+		if(stringMapper == null || licenses == null)
 		{
-			UIBranchContainer licenseList = UIBranchContainer.make(tofill, "licenseList:");
+			// need to bail because we have no data
+			// figure out how to present this to users
+		}
+		else
+		{
+			// render the license dialog
+			UIBranchContainer basicModalContent = UIBranchContainer.make(tofill, "basicModalContent:");
+			UIForm licenseSetterForm = UIForm.make(basicModalContent, "license-setter-form");
+			UIMessage.make(licenseSetterForm, "dialog-title", "dialog.title");
+			UIMessage.make(licenseSetterForm, "toggle-help", "toggle.help");
+			
+			
+			UIBranchContainer licenseList = UIBranchContainer.make(licenseSetterForm, "licenseList:");
 			
 			SortedSet<CreativeCommonsLicense> licenseSet = new TreeSet<CreativeCommonsLicense>(licenses);
 			for(CreativeCommonsLicense license : licenseSet)
 			{
 				UIBranchContainer licenseItem = UIBranchContainer.make(licenseList, "licenseItem:");
-				String descr = license.getDescription();
-				UIOutput licenseDescr = UIOutput.make(licenseItem, "licenseDescr", (descr == null || descr.trim().equals("") ? license.getTitle() : descr));
+				licenseItem.decorate(new UIStyleDecorator(license.getIdentifier()));
+				UIOutput licenseDescr = UIOutput.make(licenseItem, "licenseDescr", license.getTitle());
 			}
-		}
-		
-		Map<String,String> jurisdictions = this.creativeCommonsLicenseManager.getJurisdictions();
-		if(jurisdictions != null && ! jurisdictions.isEmpty())
-		{
-			String[] options = new String[jurisdiction.length() + 1];
-			String[] labels = new String[jurisdiction.length() + 1];
-			options[0] = "unported";
-			// need to get this from bundle
-			labels[0] = "Unported";
 			
-			int index = 1;
-			for(String title : jurisdictions.keySet())
+			UIBranchContainer licenseHelper = UIBranchContainer.make(licenseSetterForm, "licenseHelper:");
+			List<String> questionKeys = stringMapper.getQuestionKeys();
+			for(String questionKey : questionKeys)
 			{
-				String value = jurisdictions.get(title);
-				options[index] = value;
-				labels[index] = title;
-				index++;
+				Map<String, String> responses = stringMapper.getResponses(questionKey);
+				if(responses != null && responses.size() < CreativeCommonsStringMapper.USE_SELECT_ELEMENT)
+				{
+					UIBranchContainer questionDiv = UIBranchContainer.make(licenseHelper, "checkboxDiv:", questionKey);
+					UIOutput question = UIOutput.make(questionDiv, "question", stringMapper.getLabel(questionKey));
+					String descr = stringMapper.getDescription(questionKey);
+					if(descr == null)
+					{
+						logger.debug("Description for " + questionKey + " is null");
+					}
+					else
+					{
+						question.decorate(new UITooltipDecorator(descr));
+					}
+					
+					UIBranchContainer responseList = UIBranchContainer.make(questionDiv, "responses:");
+					// UISelect responseList = UISelect.make(questionDiv, "responses:");
+					for(String responseKey : responses.keySet())
+					{
+						UIBranchContainer responseItem = UIBranchContainer.make(questionDiv, "response:");
+						//UISelectChoice radioButton = UISelectChoice.make(responseItem, ID, parentFullID, choiceindex)
+						
+						UIOutput responseRadio = UIOutput.make(responseItem, "responseRadio", responseKey);
+						UIOutput responseLabel = UIOutput.make(responseItem, "responseLabel", responses.get(responseKey));
+					}
+				}
+				else
+				{
+					UIBranchContainer questionDiv = UIBranchContainer.make(licenseHelper, "selectDiv:", questionKey);
+					UIOutput question = UIOutput.make(questionDiv, "question", stringMapper.getLabel(questionKey));
+					String descr = stringMapper.getDescription(questionKey);
+					if(descr == null)
+					{
+						logger.debug("Description for " + questionKey + " is null");
+					}
+					else
+					{
+						question.decorate(new UITooltipDecorator(descr));
+					}
+										
+					String[] values = new String[responses.size()];
+					String[] labels = new String[responses.size()];
+					int i = 0;
+					for(String responseKey : responses.keySet())
+					{
+						values[i] = responseKey;
+						labels[i] = responses.get(responseKey);
+						i++;
+					}
+					UISelect jurisdictionSelector = UISelect.make(questionDiv, "jurisdictionSelector", values, labels, "", false);
+				}
 			}
 			
-			String initvalue = "unported";
-			String valuebinding = null;
-			UISelect jurisdictionSelector = UISelect.make(tofill, "jurisdictionSelector", options, labels, valuebinding, initvalue);
 		}
 
 	}

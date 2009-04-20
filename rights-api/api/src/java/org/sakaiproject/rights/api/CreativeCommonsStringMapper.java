@@ -32,6 +32,13 @@ import java.util.Map;
 public interface CreativeCommonsStringMapper 
 {
 	/**
+	 * This is a temporary hack used to make an arbitrary decision 
+	 * about whether to present a user choice as radio buttons or
+	 * a select element.
+	 */
+	public static final int USE_SELECT_ELEMENT = 12;
+
+	/**
 	 * Access the name of the license class ("Creative Commons"). The user's default locale will be used if it's available.
 	 * @return
 	 */

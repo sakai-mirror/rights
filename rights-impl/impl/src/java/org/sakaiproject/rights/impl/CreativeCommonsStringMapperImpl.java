@@ -139,7 +139,7 @@ public class CreativeCommonsStringMapperImpl implements CreativeCommonsStringMap
 			{
 				Map<String, String> mapByLocale = mapByQuestion.get(localeId);
 				
-				if(responses == null)
+				if(mapByLocale == null)
 				{
 					mapByLocale = new HashMap<String,String>();
 					mapByQuestion.put(localeId, mapByLocale);
@@ -243,7 +243,7 @@ public class CreativeCommonsStringMapperImpl implements CreativeCommonsStringMap
 			}
 			else
 			{
-				country = "-" + country.toLowerCase();
+				country = "_" + country.toUpperCase();
 			}
 			description = translations.get(language + country);
 			if(description == null)
@@ -306,7 +306,7 @@ public class CreativeCommonsStringMapperImpl implements CreativeCommonsStringMap
 			}
 			else
 			{
-				country = "-" + country.toLowerCase();
+				country = "_" + country.toUpperCase();
 			}
 			label = translations.get(language + country);
 			if(label == null)

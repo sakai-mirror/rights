@@ -214,8 +214,10 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 	{
 		String uri = license.getUri();
 		this.licenses.put(uri, license);
+		this.licenses.put(license.getIdentifier(), license);
 		
 		indexLicense(uri, ATTR_VERSION, license.getVersion());
+		
 		String jurisdiction = license.getJurisdiction();
 		if(jurisdiction == null || jurisdiction.trim().equals(""))
 		{
@@ -728,6 +730,15 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 		return value;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.rights.api.CreativeCommonsLicenseManager#getStringMapper(java.lang.String)
+	 */
+	public CreativeCommonsStringMapper getStringMapper(String mapperKey) 
+	{
+		// TODO: make a copy rather than returning the original??
+		return this.standardQuestions.get(mapperKey);
+	}
+	
 	/**
 	 * @param uri
 	 * @param index_name
@@ -1083,7 +1094,7 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 					String license_class_id = license_class_element.getAttribute(XML_ID);
 					if(license_class_id != null && license_class_id.equalsIgnoreCase(XML_STANDARD))
 					{
-						this.standardQuestions.put(XML_STANDARD, question);
+						this.standardQuestions.put(CreativeCommonsLicenseManager.CC_LICENSE_CHOOSER, question);
 						
 						Map<String,String> labelMap = this.getLocalizationMap(license_class_element, XML_LABEL);
 						question.addCreativeCommonsLabels(labelMap);
@@ -1097,31 +1108,47 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 								Element field_element = (Element) field_node;
 								String questionKey = field_element.getAttribute(XML_ID);
 								
-								Map<String, String> labelTranslations = this.getLocalizationMap(field_element, XML_LABEL);
+								Map<String, String> labelTranslations = new HashMap<String, String>(); //this.getLocalizationMap(field_element, XML_LABEL);
+								Map<String, String> descriptionTranslations = new HashMap<String, String>(); //this.getLocalizationMap(field_element, XML_DESCRIPTION);
+
 								question.addLabels(questionKey, labelTranslations);
-								
-								Map<String, String> descriptionTranslations = this.getLocalizationMap(field_element, XML_DESCRIPTION);
 								question.addDescriptions(questionKey, descriptionTranslations);
 								
-								String type = null;
-								NodeList type_nodes = field_element.getElementsByTagName(XML_TYPE);
-								if(type_nodes != null && type_nodes.getLength() > 0)
+								NodeList children = field_element.getChildNodes();
+								for(int c = 0; c < children.getLength(); c++)
 								{
-									type = type_nodes.item(0).getTextContent();
-								}
-								
-								if(type != null && type.equals(XML_ENUM))
-								{
-									NodeList response_nodes = field_element.getElementsByTagName(XML_ENUM);
-									for(int r = 0; r < response_nodes.getLength(); r++)
+									Node child_node = children.item(c);
+									if(child_node instanceof Element)
 									{
-										Node response_node = response_nodes.item(r);
-										if(response_node instanceof Element)
+										Element child_element = (Element) child_node;
+										
+										String tag_name = child_element.getTagName();
+										if(tag_name == null)
 										{
-											Element response_element = (Element) response_node;
-											String responseKey = response_element.getAttribute(XML_ID);
+											//skip
+										}
+										else if (tag_name.equals(XML_TYPE))
+										{
+											// skip
+											logger.info(questionKey + " type is " + child_element.getTextContent());
+										}
+										else if (tag_name.equals(XML_LABEL))
+										{
+											String lang = child_element.getAttributeNS(XML_NAMESPACE,XML_LANG);
+											String label = child_element.getTextContent();
+											labelTranslations.put(lang , label );
+										}
+										else if (tag_name.equals(XML_DESCRIPTION))
+										{
+											String lang = child_element.getAttributeNS(XML_NAMESPACE,XML_LANG);
+											String description = child_element.getTextContent();
+											descriptionTranslations.put(lang, description );
+										}
+										else if (tag_name.equals(XML_ENUM))
+										{
+											String responseKey = child_element.getAttribute(XML_ID);
 											
-											Map<String,String> responseMap = this.getLocalizationMap(response_element, XML_LABEL);
+											Map<String,String> responseMap = this.getLocalizationMap(child_element, XML_LABEL);
 											question.addResponses(questionKey, responseKey, responseMap);
 										}
 									}
