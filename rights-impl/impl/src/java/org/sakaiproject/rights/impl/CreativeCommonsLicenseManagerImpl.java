@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
-import java.util.Stack;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -76,13 +75,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 
 /**
@@ -285,24 +277,26 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 					} 
 					catch (PermissionException e1) 
 					{
-						// TODO Auto-generated catch block
 						logger.debug("Exception",e1);
 					} 
 					catch (IdUsedException e1) 
 					{
-						// TODO Auto-generated catch block
 						logger.debug("Exception",e1);
-					} catch (IdInvalidException e1) {
-						// TODO Auto-generated catch block
+					} 
+					catch (IdInvalidException e1) 
+					{
 						logger.debug("Exception",e1);
-					} catch (InconsistentException e1) {
-						// TODO Auto-generated catch block
+					} 
+					catch (InconsistentException e1) 
+					{
 						logger.debug("Exception",e1);
-					} catch (ServerOverloadException e1) {
-						// TODO Auto-generated catch block
+					} 
+					catch (ServerOverloadException e1) 
+					{
 						logger.debug("Exception",e1);
-					} catch (OverQuotaException e1) {
-						// TODO Auto-generated catch block
+					} 
+					catch (OverQuotaException e1) 
+					{
 						logger.debug("Exception",e);
 					}
 					
@@ -338,16 +332,18 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 					}
 					catch (PermissionException e1) 
 					{
-						// TODO Auto-generated catch block
 						logger.debug("Exception",e1);
-					} catch (IdUsedException e1) {
-						// TODO Auto-generated catch block
+					} 
+					catch (IdUsedException e1) 
+					{
 						logger.debug("Exception",e1);
-					} catch (IdInvalidException e1) {
-						// TODO Auto-generated catch block
+					} 
+					catch (IdInvalidException e1) 
+					{
 						logger.debug("Exception",e1);
-					} catch (InconsistentException e1) {
-						// TODO Auto-generated catch block
+					} 
+					catch (InconsistentException e1) 
+					{
 						logger.debug("Exception",e1);
 					} 
 
@@ -1108,8 +1104,8 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 								Element field_element = (Element) field_node;
 								String questionKey = field_element.getAttribute(XML_ID);
 								
-								Map<String, String> labelTranslations = new HashMap<String, String>(); //this.getLocalizationMap(field_element, XML_LABEL);
-								Map<String, String> descriptionTranslations = new HashMap<String, String>(); //this.getLocalizationMap(field_element, XML_DESCRIPTION);
+								Map<String, String> labelTranslations = this.getLocalizationMap(field_element, XML_LABEL); // new HashMap<String, String>(); 
+								Map<String, String> descriptionTranslations = this.getLocalizationMap(field_element, XML_DESCRIPTION); // new HashMap<String, String>(); 
 
 								question.addLabels(questionKey, labelTranslations);
 								question.addDescriptions(questionKey, descriptionTranslations);
@@ -1294,33 +1290,27 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 			} 
 			catch (IdUsedException e1) 
 			{
-				// TODO Auto-generated catch block
 				logger.debug("Exception",e1);
 			} 
 			catch (IdInvalidException e1) 
 			{
-				// TODO Auto-generated catch block
 				logger.debug("Exception",e1);
 			} 
 			catch (PermissionException e1) 
 			{
-				// TODO Auto-generated catch block
 				logger.debug("Exception",e1);
 			} 
 			catch (InconsistentException e1) 
 			{
-				// TODO Auto-generated catch block
 				logger.debug("Exception",e1);
 			}
 		} 
 		catch (TypeException e) 
 		{
-			// TODO Auto-generated catch block
 			logger.debug("Exception",e);
 		} 
 		catch (PermissionException e) 
 		{
-			// TODO Auto-generated catch block
 			logger.debug("Exception",e);
 		}
 		finally

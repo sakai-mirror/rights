@@ -119,6 +119,7 @@ public class LicenseDialogProducer implements ViewComponentProducer, ContentType
 		{
 			// need to bail because we have no data
 			// figure out how to present this to users
+			logger.warn("insufficient data to show licenses: stringMapper == " + stringMapper + " licenses == " + licenses);
 		}
 		else
 		{
@@ -167,6 +168,7 @@ public class LicenseDialogProducer implements ViewComponentProducer, ContentType
 						
 						UIOutput responseRadio = UIOutput.make(responseItem, "responseRadio", responseKey);
 						UIOutput responseLabel = UIOutput.make(responseItem, "responseLabel", responses.get(responseKey));
+						responseLabel.decorate(new UIFreeAttributeDecorator("for", responseRadio.getFullID()));
 					}
 				}
 				else
