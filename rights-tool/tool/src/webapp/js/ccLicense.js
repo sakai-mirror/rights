@@ -53,7 +53,6 @@ licenseDialog.setup = function () {
         	}
         };
     $("#helpmelink a").toggle(function(){
-        //		$('#simplemodal-container').css('width','600px');
         $('#helper').show('medium');
         $('#licenseInfo').hide();
         $('#helpercont, #helpmelink').addClass('helpercont');

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.rights.tool.producers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +40,13 @@ import org.sakaiproject.util.ResourceLoader;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
@@ -148,6 +152,7 @@ public class LicenseDialogProducer implements ViewComponentProducer, ContentType
 				if(responses != null && responses.size() < CreativeCommonsStringMapper.USE_SELECT_ELEMENT)
 				{
 					UIBranchContainer questionDiv = UIBranchContainer.make(licenseHelper, "checkboxDiv:", questionKey);
+					questionDiv.decorate(new UIStyleDecorator(questionKey));
 					UIOutput question = UIOutput.make(questionDiv, "question", stringMapper.getLabel(questionKey));
 					String descr = stringMapper.getDescription(questionKey);
 					if(descr == null)
@@ -174,6 +179,7 @@ public class LicenseDialogProducer implements ViewComponentProducer, ContentType
 				else
 				{
 					UIBranchContainer questionDiv = UIBranchContainer.make(licenseHelper, "selectDiv:", questionKey);
+					questionDiv.decorate(new UIStyleDecorator(questionKey));
 					UIOutput question = UIOutput.make(questionDiv, "question", stringMapper.getLabel(questionKey));
 					String descr = stringMapper.getDescription(questionKey);
 					if(descr == null)
@@ -198,11 +204,86 @@ public class LicenseDialogProducer implements ViewComponentProducer, ContentType
 				}
 			}
 			
+			UISelect licenseSelector = UISelect.make(licenseSetterForm, "license-choice-selector", new String[licenseSet.size()], new String[licenseSet.size()], null);
+			List<String> values = new ArrayList<String>();
+			List<String> labels = new ArrayList<String>();
+			
+			int choiceIndex = 0; 
+			for(CreativeCommonsLicense license : licenseSet)
+			{
+				UIBranchContainer licenseChoice = UIBranchContainer.make(licenseSetterForm, "license-choice:");
+				licenseChoice.decorate(new UIStyleDecorator(license.getIdentifier()));
+				UISelectChoice licenseRadio = UISelectChoice.make(licenseChoice, "license-choice-radio", licenseSelector.getFullID(), choiceIndex);
+				values.add(license.getIdentifier());
+				UISelectLabel licenseLabel = UISelectLabel.make(licenseChoice, "license-choice-label", licenseSelector.getFullID(), choiceIndex);
+				labels.add(license.getTitle());
+				//licenseLabel.decorate(new UIFreeAttributeDecorator("for", licenseRadio.getFullID()));
+				String imageURL = getImageURL(license.getIdentifier());
+				if(imageURL != null)
+				{
+					UILink img = UILink.make(licenseChoice, "license-choice-img", imageURL);
+				}
+				choiceIndex++;
+			}
+			UIBranchContainer nolicenseChoice = UIBranchContainer.make(licenseSetterForm, "license-choice:");
+			nolicenseChoice.decorate(new UIStyleDecorator("nolicense"));
+			UISelectChoice nolicenseRadio = UISelectChoice.make(nolicenseChoice, "license-choice-radio", licenseSelector.getFullID(), choiceIndex);
+			values.add("nolicense");
+			UISelectLabel nolicenseLabel = UISelectLabel.make(nolicenseChoice, "license-choice-label", licenseSelector.getFullID(), choiceIndex);
+			labels.add("No License");
+			
+			//nolicenseLabel.decorate(new UIFreeAttributeDecorator("for", nolicenseRadio.getFullID()));
+			
+			String[] valueArray = values.toArray(new String[values.size()]);
+			licenseSelector.optionlist.setValue(valueArray);
+			String[] labelArray = labels.toArray(new String[labels.size()]);
+			licenseSelector.optionnames.setValue(labelArray );
+			
+
 		}
 
 	}
 
 
+
+	protected String getImageURL(String identifier) 
+	{
+		String url = null;
+		if(identifier == null)
+		{
+			// do nothing
+		}
+		else if(identifier.startsWith("by_nc_nd"))
+		{
+			url = "/sakai-content-tool/images/attr_nocom_noder.png";
+		}
+		else if(identifier.startsWith("by_nc_sa"))
+		{
+			url = "/sakai-content-tool/images/attr_nocom_share.png";
+		}
+		else if(identifier.startsWith("by_nc"))
+		{
+			url = "/sakai-content-tool/images/attr_nocom.png";
+		}
+		else if(identifier.startsWith("by_nd"))
+		{
+			url = "/sakai-content-tool/images/attr_noder.png";
+		}
+		else if(identifier.startsWith("by_sa"))
+		{
+			url = "/sakai-content-tool/images/attr_share.png";
+		}
+		else if(identifier.startsWith("by"))
+		{
+			url = "/sakai-content-tool/images/attr.png";
+		}
+		else
+		{
+			// do nothing?
+		}
+
+		return url;
+	}
 
 	public String getContentType() 
 	{
