@@ -4,6 +4,10 @@
 var licenseDialog = licenseDialog || {};
 
 licenseDialog.setup = function () {
+	var dialogTitle = $('.dialogTitle').html();
+	$('#ui-dialog-title-licenseSetter').html(dialogTitle);
+	$('.dialogTitle').remove();
+	
     if ($('#licenseHolder').text() !== '') {
         var prevLicense = ($('#licenseHolder').text()).split('-s')[0];
         $('tr#' + prevLicense).addClass("selectedLic");

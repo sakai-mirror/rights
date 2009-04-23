@@ -576,7 +576,7 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 	protected Map<String, String> getLocalizationMap(Element parent, String nodename) 
 	{
 		Map<String,String> values = new HashMap<String,String>();
-		NodeList nodes = parent.getElementsByTagName(nodename);
+		NodeList nodes = parent.getChildNodes(); //parent.getElementsByTagName(nodename);
 		
 		for(int n = 0; n < nodes.getLength(); n++)
 		{
@@ -584,11 +584,15 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 			if(node instanceof Element)
 			{
 				Element element = (Element) node;
-				String lang = element.getAttributeNS(XML_NAMESPACE, XML_LANG);
-				String value = element.getTextContent();
-				if(value != null && ! value.trim().equals(""))
+				String tagName = element.getTagName();
+				if(tagName != null && tagName.equalsIgnoreCase(nodename))
 				{
-					values.put(lang, value);
+					String lang = element.getAttributeNS(XML_NAMESPACE, XML_LANG);
+					String value = element.getTextContent();
+					if(value != null && ! value.trim().equals(""))
+					{
+						values.put(lang, value);
+					}
 				}
 			}
 		}
@@ -604,6 +608,41 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 	protected Map<String, String> getLocalizationMap(Element parent, String namespace, String nodename) 
 	{
 		Map<String,String> values = new HashMap<String,String>();
+		//NodeList nodes = parent.getElementsByTagNameNS(namespace, nodename);
+		NodeList nodes = parent.getChildNodes(); //parent.getElementsByTagName(nodename);
+		
+		for(int n = 0; n < nodes.getLength(); n++)
+		{
+			Node node = nodes.item(n);
+			if(node instanceof Element)
+			{
+				Element element = (Element) node;
+				String tagName = element.getTagName();
+				String tagNamespace = element.getNamespaceURI();
+				if(tagName != null && tagName.equalsIgnoreCase(nodename) && tagNamespace != null && tagNamespace.equalsIgnoreCase(namespace))
+				{
+					String lang = element.getAttributeNS(XML_NAMESPACE, XML_LANG);
+					String value = element.getTextContent();
+					if(value != null && ! value.trim().equals(""))
+					{
+						values.put(lang, value);
+					}
+				}
+			}
+		}
+		return values;
+	}
+	
+	/**
+	 * @param parent
+	 * @param namespace TODO
+	 * @param nodename
+	 * @return
+	 */
+	protected Map<String, String> getDescendentLocalizationMap(Element parent, String namespace, String nodename) 
+	{
+		Map<String,String> values = new HashMap<String,String>();
+		//NodeList nodes = parent.getElementsByTagNameNS(namespace, nodename);
 		NodeList nodes = parent.getElementsByTagNameNS(namespace, nodename);
 		
 		for(int n = 0; n < nodes.getLength(); n++)
@@ -622,6 +661,7 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 		}
 		return values;
 	}
+	
 
 	/**
 	 * @param parent
@@ -1050,8 +1090,8 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 					license.addRequirements(this.getNodeResourceValues(license_element, CC_NAMESPACE, CC_REQUIRES));
 					license.addProhibitions(this.getNodeResourceValues(license_element, CC_NAMESPACE, CC_PROHIBITS));
 					
-					license.addDescriptions(getLocalizationMap(license_element, DC_NAMESPACE, DC_DESCRIPTION));
-					license.addTitles(this.getLocalizationMap(license_element, DC_NAMESPACE, DC_TITLE));
+					license.addDescriptions(this.getDescendentLocalizationMap(license_element, DC_NAMESPACE, DC_DESCRIPTION));
+					license.addTitles(this.getDescendentLocalizationMap(license_element, DC_NAMESPACE, DC_TITLE));
 					
 					this.addLicense(license);
 				}
@@ -1104,12 +1144,9 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 								Element field_element = (Element) field_node;
 								String questionKey = field_element.getAttribute(XML_ID);
 								
-								Map<String, String> labelTranslations = this.getLocalizationMap(field_element, XML_LABEL); // new HashMap<String, String>(); 
-								Map<String, String> descriptionTranslations = this.getLocalizationMap(field_element, XML_DESCRIPTION); // new HashMap<String, String>(); 
+								Map<String, String> labelTranslations = new HashMap<String, String>(); // this.getLocalizationMap(field_element, XML_LABEL);
+								Map<String, String> descriptionTranslations = new HashMap<String, String>(); // this.getLocalizationMap(field_element, XML_DESCRIPTION); 
 
-								question.addLabels(questionKey, labelTranslations);
-								question.addDescriptions(questionKey, descriptionTranslations);
-								
 								NodeList children = field_element.getChildNodes();
 								for(int c = 0; c < children.getLength(); c++)
 								{
@@ -1148,9 +1185,11 @@ public class CreativeCommonsLicenseManagerImpl implements CreativeCommonsLicense
 											question.addResponses(questionKey, responseKey, responseMap);
 										}
 									}
-									
 								}
 								
+								question.addLabels(questionKey, labelTranslations);
+								question.addDescriptions(questionKey, descriptionTranslations);
+																	
 							}
 						}
 					}
